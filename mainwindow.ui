@@ -181,12 +181,12 @@
               <string>Format wyjściowy</string>
              </property>
              <property name="buddy">
-              <cstring>outPutFormat</cstring>
+              <cstring>outputFormat</cstring>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="outPutFormat">
+            <widget class="QComboBox" name="outputFormat">
              <item>
               <property name="text">
                <string>PNG</string>
@@ -341,7 +341,10 @@
     <property name="title">
      <string>Plik</string>
     </property>
+    <addaction name="actionNowy"/>
+    <addaction name="action_Open"/>
     <addaction name="actionZapisz"/>
+    <addaction name="actionUstawienia"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuPomoc">
@@ -370,6 +373,27 @@
   <action name="actionZapisz">
    <property name="text">
     <string>Zapisz</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionUstawienia">
+   <property name="text">
+    <string>Ustawienia</string>
+   </property>
+  </action>
+  <action name="actionNowy">
+   <property name="text">
+    <string>Nowy</string>
+   </property>
+  </action>
+  <action name="action_Open">
+   <property name="text">
+    <string>&amp;Otwórz</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
    </property>
   </action>
  </widget>

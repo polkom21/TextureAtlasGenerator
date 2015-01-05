@@ -25,6 +25,8 @@ public:
     QMap<QString, QRect> graphics;
 
     void buildAtlas(QString outputFolder);
+
+private:
     void saveToXML(QString outputFolder);
 };
 

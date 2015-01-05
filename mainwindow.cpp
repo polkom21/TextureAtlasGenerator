@@ -6,6 +6,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    settings = new Settings(this);
+
+    // set elements to default values
+    ui->outputFolder->setText(settings->conf->value("default/outputFolder").toString());
+    ui->widthPack->setValue(settings->conf->value("default/atlasWidth").toInt());
+    ui->heightPack->setValue(settings->conf->value("default/atlasHeight").toInt());
+
+
     this->setWindowTitle("Texture Atlas Generator");
     connect(ui->about, SIGNAL(triggered()), this, SLOT(about()));
     connect(ui->newPack, SIGNAL(clicked()), this, SLOT(newPackSlot()));
@@ -16,6 +24,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->packAtlas, SIGNAL(clicked()), this, SLOT(buildAtlas()));
     connect(ui->saveSettings, SIGNAL(clicked()), this, SLOT(saveSettingsPack()));
     connect(ui->actionZapisz, SIGNAL(triggered()), this, SLOT(saveProject()));
+    connect(ui->actionUstawienia, SIGNAL(triggered()), settings, SLOT(open()));
+    connect(ui->action_Open, SIGNAL(triggered()), this, SLOT(openProject()));
+    connect(ui->actionNowy, SIGNAL(triggered()), this, SLOT(newProject()));
 
     QLabel *statusLabel = new QLabel(this);
     ui->statusBar->addPermanentWidget(statusLabel);
@@ -102,5 +113,82 @@ void MainWindow::saveSettingsPack()
 
 void MainWindow::saveProject()
 {
-    qDebug() << proFile;
+    if(proFile == "")
+    {
+        proFile = QFileDialog::getSaveFileName(0, tr("Zapisz jako"), QString("%1/Desktop").arg(QDir::homePath()), QString("*.ta"));
+    }
+
+    QString project;
+    QFile file(QString("%1.ta").arg(proFile));
+    file.open(QIODevice::WriteOnly);
+    QXmlStreamWriter *writer = new QXmlStreamWriter(&file);
+
+    writer->setAutoFormatting(true);
+
+    writer->writeStartElement("atlases");
+    writer->writeAttribute("outputFolder", ui->outputFolder->text());
+
+    for(int i = 0; i < packs.size(); i++)
+    {
+        writer->writeStartElement("Texture");
+        writer->writeAttribute("name", packs[i]->packName);
+        writer->writeAttribute("width", QString("%1").arg(packs[i]->width));
+        writer->writeAttribute("height", QString("%1").arg(packs[i]->height));
+        writer->writeAttribute("inputDir", packs[i]->inputDir);
+        writer->writeEndElement();
+    }
+
+    writer->writeEndElement();
+
+    file.close();
+
+    ui->statusBar->showMessage(QString("Projekt został zapisany."), 2000);
+}
+
+void MainWindow::openProject()
+{
+    proFile = QFileDialog::getOpenFileName(0, tr("Otwórz projekt"), QString("%1/Desktop").arg(QDir::homePath()), QString("*.ta"));
+
+    QFile file(proFile);
+    file.open(QIODevice::ReadOnly);
+    QXmlStreamReader xmlStream(&file);
+
+    this->newProject();
+
+    while(!xmlStream.atEnd())
+    {
+        if(xmlStream.isStartElement())
+        {
+            if(xmlStream.name() == QString("atlases")){
+                outputDir = xmlStream.attributes().first().value().toString();
+                ui->outputFolder->setText(outputDir);
+            } else if(xmlStream.name() == QString("Texture")){
+                QXmlStreamAttributes attributes = xmlStream.attributes();
+                QString textureName = attributes.value("name").toString();
+                QListWidgetItem *item = new QListWidgetItem;
+                item->setText(textureName);
+                ui->packs->addItem(item);
+                packs.push_back(new Pack(textureName));
+                packs.last()->inputDir = attributes.value("inputDir").toString();
+                packs.last()->width = attributes.value("width").toInt();
+                packs.last()->height = attributes.value("height").toInt();
+                packs.last()->buildAtlas(outputDir);
+            }
+        }
+        xmlStream.readNext();
+    }
+
+    file.close();
+}
+
+void MainWindow::newProject()
+{
+    // clear all inputs
+    ui->packs->clear();
+    this->packs.clear();
+    proFile.clear();
+    ui->packSettings->setDisabled(true);
+    ui->removePack->setDisabled(true);
+    ui->outputFolder->setText(settings->conf->value("default/outputFolder").toString());
+    ui->graphicsView->setScene(new QGraphicsScene());
 }

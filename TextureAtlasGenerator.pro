@@ -15,13 +15,16 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     createpack.cpp \
-    pack.cpp
+    pack.cpp \
+    settings.cpp
 
 HEADERS  += mainwindow.h \
     createpack.h \
-    pack.h
+    pack.h \
+    settings.h
 
 FORMS    += mainwindow.ui \
-    createpack.ui
+    createpack.ui \
+    settings.ui
 
 LIBS     += -lsfml-graphics

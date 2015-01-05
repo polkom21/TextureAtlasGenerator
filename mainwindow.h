@@ -11,6 +11,7 @@
 #include <QGraphicsPixmapItem>
 #include "createpack.h"
 #include "pack.h"
+#include "settings.h"
 
 namespace Ui {
 class MainWindow;
@@ -26,6 +27,7 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    Settings *settings;
     QVector<Pack*> packs;
     int activePack;
     QString outputDir;
@@ -41,6 +43,8 @@ private slots:
     void buildAtlas();
     void saveSettingsPack();
     void saveProject();
+    void openProject();
+    void newProject();
 };
 
 #endif // MAINWINDOW_H
